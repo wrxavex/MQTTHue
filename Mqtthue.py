@@ -128,19 +128,19 @@ def light_updater():
     print (D6T_blocks)
     D6T_json = json.loads(D6T_blocks)
     # print ("mom I'm here")
-    if (D6T_json["11"] == "1"):
+    if (D6T_json["10"] == "1"):
         # if lightrunning[1] == False:
         #     lightrunning[1] = True
         if b.get_light(1, 'on') == False:
             print("light 1 ready to on")
             thread.start_new_thread(show_on, (1, lock))
-    if (D6T_json["10"] == "1"):
+    if (D6T_json["9"] == "1"):
         # if lightrunning[2] == False:
         #     lightrunning[2] = True
         if b.get_light(2, 'on') == False:
             print("light 2 ready to on")
             thread.start_new_thread(show_on, (2, lock))
-    if (D6T_json["12"] == "1"):
+    if (D6T_json["11"] == "1"):
         # if lightrunning[3] == False:
         #     lightrunning[3] = True
         if b.get_light(3, 'on') == False:
