@@ -19,7 +19,7 @@ except ImportError:
     import paho.mqtt.client as mqtt
 
 D6T_blocks = ""
-
+lightrunning = {1:False, 2:False, 3:False}
 
 class MyMQTTClass:
     def __init__(self, clientid=None):
@@ -103,31 +103,49 @@ lights = b.get_light_objects()
 #             lights[1].brightness = bri
 #             print(bri)
 #             sleep(random.uniform(0.01, 0.2))
+def lights_init():
+    global lights
+    print ('light init')
+    for light in range(1,4):
+        print ('init%d' % light)
+        if b.get_light(light, 'on') == True:
+            print ('init%d' % light )
+            b.set_light(light, 'on', False)
 
+def show_on(light, *args):
+    global lights
+    slow_on = {'transitiontime': 50, 'on': True, 'bri': 254}
+    b.set_light(light, slow_on)
+    sleep(15)
+    b.set_light(light, 'on', False)
+    lightrunning[light] = False
 
 
 def light_updater():
     global lights
     global D6T_blocks
-    while True:
-        print (D6T_blocks)
-        D6T_json = json.loads(D6T_blocks)
-        # print ("mom I'm here")
-        if (D6T_json["0"] == "1"):
-            if lights[0].on ==False:
-                lights[0].on = True
-                sleep(30)
-        if (D6T_json["1"] == "1"):
-            if lights[1] == False:
-                lights[1].on = True
-                sleep(30)
-        if (D6T_json["2"] == "1"):
-            if lights[2].on == False:
-                lights[2].on = True
-            sleep(30)
-        else:
-            for light in lights:
-                light.on = False
+    global lightrunning
+    print (D6T_blocks)
+    D6T_json = json.loads(D6T_blocks)
+    # print ("mom I'm here")
+    if (D6T_json["11"] == "1"):
+        # if lightrunning[1] == False:
+        #     lightrunning[1] = True
+        if b.get_light(1, 'on') == False:
+            print("light 1 ready to on")
+            thread.start_new_thread(show_on, (1, lock))
+    if (D6T_json["10"] == "1"):
+        # if lightrunning[2] == False:
+        #     lightrunning[2] = True
+        if b.get_light(2, 'on') == False:
+            print("light 2 ready to on")
+            thread.start_new_thread(show_on, (2, lock))
+    if (D6T_json["12"] == "1"):
+        # if lightrunning[3] == False:
+        #     lightrunning[3] = True
+        if b.get_light(3, 'on') == False:
+            print("light 3 ready to on")
+            thread.start_new_thread(show_on, (3, lock))
 
 
 
@@ -142,6 +160,8 @@ def get_MQTT(sleeptime, *args):
 
 def main():
     global D6T_blocks
+
+    lights_init()
 
 
     thread.start_new_thread(get_MQTT, ("", lock))
