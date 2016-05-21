@@ -18,6 +18,9 @@ except ImportError:
         sys.path.insert(0, cmd_subfolder)
     import paho.mqtt.client as mqtt
 
+D6T_blocks = ""
+
+
 class MyMQTTClass:
     def __init__(self, clientid=None):
         self._mqttc = mqtt.Client(clientid)
@@ -34,6 +37,7 @@ class MyMQTTClass:
 
         if "Blocks" in msg.topic:
             D6T_blocks = str(msg.payload)
+            # print (D6T_blocks)
 
         # print(msg.topic+" "+str(msg.qos)+" "+str(msg.payload))
 
@@ -100,19 +104,31 @@ lights = b.get_light_objects()
 #             print(bri)
 #             sleep(random.uniform(0.01, 0.2))
 
-def light_updater(sleeptime, *args):
+
+
+def light_updater():
+    global lights
     global D6T_blocks
     while True:
+        print (D6T_blocks)
         D6T_json = json.loads(D6T_blocks)
+        # print ("mom I'm here")
         if (D6T_json["0"] == "1"):
-            lights[0].on = True
-            sleep(1)
+            if lights[0].on ==False:
+                lights[0].on = True
+                sleep(30)
         if (D6T_json["1"] == "1"):
-            lights[1].on = True
-            sleep(1)
+            if lights[1] == False:
+                lights[1].on = True
+                sleep(30)
         if (D6T_json["2"] == "1"):
-            lights[2].on = True
-            sleep()
+            if lights[2].on == False:
+                lights[2].on = True
+            sleep(30)
+        else:
+            for light in lights:
+                light.on = False
+
 
 
 
@@ -125,8 +141,16 @@ def get_MQTT(sleeptime, *args):
 
 
 def main():
+    global D6T_blocks
+
+
     thread.start_new_thread(get_MQTT, ("", lock))
-    thread.start_new_thread(light_updater, ("", lock))
+
+
+    while True:
+        sleep(1)
+        light_updater()
+
 
 
 
